@@ -1,56 +1,50 @@
 import User from "../models/user.model.js"
 import bcryptjs from "bcryptjs"
-import { errorhandler } from "../utils/error.js"
+import  errorhandler  from "../utils/error.js"
 
-export const signup=async(req,res,next)=>{
 
-    const {username,email,password}=req.body
+export const signup = async (req, res, next) => {
+  const { username, email, password } = req.body;
 
-    if (!username || !email || !password || username===""||email===""||password==="") {
-      next( errorhandler(400,"All Fields are Required"))
-    }
-  
-    const exist=await User.findOne({email})
+  // Check if all fields are present
+  if (!username || !email || !password || username === "" || email === "" || password === "") {
+    return next(errorhandler(400, "All Fields are Required"));
+  }
+
+  try {
+    // Check if email already exists
+    const exist = await User.findOne({ email });
     if (exist) {
-        next(errorhandler(400,"Email Already Exist"))
+      return next(errorhandler(400, "Email Already Exists"));
     }
 
-    const existName=await User.findOne({username})
+    // Check if username already exists
+    const existName = await User.findOne({ username });
     if (existName) {
-        next(errorhandler(400,"Username Already Exist"))
+      return next(errorhandler(400, "Username Already Exists"));
     }
 
+    // Hash the password
+    const salt = bcryptjs.genSaltSync(10);
+    const hashedPassword = bcryptjs.hashSync(password, salt);
 
-    if (password.length<8) {
-        next(errorhandler( 400,"password should be min 8 characters"))
-    }
+    // Create and save new user
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword
+    });
 
-    var salt = bcryptjs.genSaltSync(10);
-    var hashedPassword = bcryptjs.hashSync(password, salt);
+    await newUser.save();
 
-    try {
+    // Respond with success
+    return res.status(201).json({ success: true, message: "Signup Successful" });
 
-        const newUser=new User({
-            username,
-            email,
-            password:hashedPassword
-        })
-    
-        await newUser.save()
-        next(errorhandler(201,"Signup Successfully"))     
-    } catch (error) {
-        next(error);
-        
-    }
-    
-    // const exist=await User.findOne({email})
+  } catch (error) {
+    return next(error); // Pass any other error to the error handler middleware
+  }
+};
 
-    // if (exist) {
-    //     res.send("User Already Exist")
-    // }
-
-   
-}
 
 export const Login=async(req,res)=>{
 
