@@ -11,6 +11,9 @@ export const signup = async (req, res, next) => {
   if (!username || !email || !password || username === "" || email === "" || password === "") {
     return next(errorhandler(400, "All Fields are Required"));
   }
+  // if (password.length<8||password.length>15) {
+    
+  // }
 
   try {
     // Check if email already exists
@@ -52,7 +55,7 @@ export const Login=async(req,res,next)=>{
       const {email,password}=req.body
 
       if (!email||!password) {
-        next(errorhandler(400,"All fields are required"))
+        return next(errorhandler(400,"All fields are required"))
       }
 
       try {
@@ -65,15 +68,17 @@ export const Login=async(req,res,next)=>{
       const validPassword=bcryptjs.compareSync(password,validUser.password)
 
        if (!validPassword) {
-        next(errorhandler(401,"Invalid Password"))
+       return next(errorhandler(401,"Invalid Password"))
        }
 
     
-       const {password:pass,...rest}=validUser._doc
 
         const token=jwt.sign({id:validUser._id},process.env.JWT_secret);
+        const {password:pass,...rest}=validUser._doc
+       
         res.status(200).cookie("access_token",token,
           {httpOnly:true}).json(rest)
+
 
       } catch (error) {
         next(error)
