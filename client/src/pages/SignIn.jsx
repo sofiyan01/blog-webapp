@@ -1,13 +1,16 @@
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { signInStart,signInSuccess,signInFailure } from '../redux/user/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import Oauth from '../components/Oauth';
 
 function SignIn() {
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate=useNavigate()
-
+const dispatch=useDispatch()
   const handleChange = (e) => {
     setFormData({
       ...formData, [e.target.id]: e.target.value
@@ -32,6 +35,7 @@ function SignIn() {
         setErrorMessage(data.message);
       }
       if (res.ok) {
+         dispatch(signInSuccess(data)) 
         navigate("/")
       }
     } catch (error) {
@@ -51,7 +55,9 @@ function SignIn() {
               Sufiyan's
             </span>
             Blog
+  
           </Link>
+          
           <p className='text-sm mt-5'>
             This is a demo project. You can sign up with your email and password
             or with Google.
@@ -92,6 +98,7 @@ function SignIn() {
                 </>
               ) : "Sign In"}
             </Button>
+            <Oauth/>
           </form>
           <div className='flex gap-2 text-sm mt-5'>
             <span>dont Have an account?</span>
