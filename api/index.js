@@ -4,6 +4,7 @@ import dotenv from "dotenv"
 import userRouter from "./routes/user.router.js"
 import authRouter from "./routes/auth.router.js"
 import morgan from "morgan"
+import cookieParser from "cookie-parser";
 dotenv.config();
 
 const app = express();
@@ -24,6 +25,7 @@ mongoose
 
 app.use(morgan("common"))
 app.use(express.json());
+app.use(cookieParser())
 app.use("/api/user",userRouter)
 app.use("/api/auth",authRouter)
 
